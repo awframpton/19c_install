@@ -1,0 +1,48 @@
+#in the VM
+yum install oracle-database-preinstall-19c
+mkdir /u01/stage
+chown -R oracle:oinstall /u01/stage
+mkdir -p /u01/app/oracle
+chown -R oracle:oinstall /u01/app/oracle
+
+#copy 19c software
+cd /nas/shared/software/oracle/19c
+scp LINUX.X64_193000_db_home.zip oracle@192.168.122.14:/u01/stage
+
+cd /nas/shared/software/oracle/19c/patches/202210_ru
+#copy opatch
+scp p6880880_210000_Linux-x86-64.zip oracle@192.168.122.14:/u01/stage
+#copy 19.17 (oct 2022) RU
+scp p34449114_190000_Linux-x86-64.zip oracle@192.168.122.14:/u01/stage
+
+#unzip the ru
+mkdir patches
+unzip -q p34449114_190000_Linux-x86-64.zip -d patches
+
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=/u01/app/oracle/product/19.0.0/dbhome_1
+export CV_ASSUME_DISTID=OL7
+
+#unzip the 19c image
+unzip -q LINUX.X64_193000_db_home.zip -d $ORACLE_HOME
+
+#blow away and unzip new opatch
+rm -rf $ORACLE_HOME/OPatch
+unzip -q p6880880_210000_Linux-x86-64.zip -d $ORACLE_HOME
+
+#install tiger vnc server
+yum install tigervnc-server
+
+cd $ORACLE_HOME
+./runInstaller -applyRU /u01/stage/patches/34449114/34419443 \
+-applyOneOffs /u01/stage/patches/34449114/34411846
+
+#april 2023
+./runInstaller -applyRU /u01/stage/patches/35058172/35037840/35042068 \
+-applyOneOffs /u01/stage/patches/35058172/35037840/35050331,\
+/u01/stage/patches/35058172/35050341
+
+#as root
+/u01/app/oraInventory/orainstRoot.sh
+/u01/app/oracle/product/19.0.0/dbhome_1/root.sh
+

@@ -1,0 +1,64 @@
+#copy the grid software
+cd /nas/shared/software/oracle/19c
+scp LINUX.X64_193000_grid_home.zip oracle@rac1:/u01/stage
+cd patches
+scp p6880880_210000_Linux-x86-64.zip oracle@rac1:/u01/stage
+cd 202210_ru/grid
+scp p34449117_190000_Linux-x86-64.zip oracle@rac1:/u01/stage
+
+#as root
+mkdir -p /u01/app/19.0.0/grid
+mkdir /u01/app/oracle
+chown -R oracle:oinstall /u01/app
+chown oracle:oinstall /u01/app/19.0.0/grid
+
+#disable firewall
+systemctl stop firewalld
+systemctl disable firewalld
+
+#as oracle
+cd /u01/app/19.0.0/grid
+unzip -q /u01/stage/LINUX.X64_193000_grid_home.zip
+
+#as root
+export ORACLE_HOME=/u01/app/19.0.0/grid
+export ORACLE_BASE=/u01/app/oracle
+
+cd $ORACLE_HOME/bin
+./asmcmd afd_label DATA1 /dev/vdb --init
+./asmcmd afd_label RECO1 /dev/vdc --init
+
+#verify
+./asmcmd afd_lslbl /dev/vdb
+./asmcmd afd_lslbl /dev/vdc
+
+#as oracle
+#unzip the ru
+mkdir patches
+unzip -q p34449117_190000_Linux-x86-64.zip -d patches
+
+rm -rf /u01/app/19.0.0/grid/OPatch
+unzip -q p6880880_210000_Linux-x86-64.zip -d /u01/app/19.0.0/grid
+
+#cleanup ORACLE_BASE/diag, maybe owned by root
+rm -rf /u01/app/oracle/diag
+
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=/u01/app/19.0.0/grid
+export CV_ASSUME_DISTID=OL7
+
+#software only install
+cd $ORACLE_HOME
+./gridSetup.sh -applyRU /u01/stage/patches/34449117/34416665 \
+-applyOneOffs /u01/stage/patches/34449117/34411846
+
+#change ownership for disks
+chown oracle /dev/vdb
+chown oracle /dev/vdc
+
+#setup grid as oracle
+/u01/app/19.0.0/grid/gridSetup.sh
+
+#create reco diskgroup
+create diskgroup reco external redundancy
+disk 'AFD:RECO1';

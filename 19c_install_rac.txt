@@ -1,0 +1,33 @@
+
+#copy 19c software
+cd /nas/shared/software/oracle/19c
+scp LINUX.X64_193000_db_home.zip oracle@rac1:/u01/stage
+
+export ORACLE_BASE=/u01/app/oracle
+export ORACLE_HOME=/u01/app/oracle/product/19.0.0/dbhome_1
+export CV_ASSUME_DISTID=OL7
+
+mkdir -p $ORACLE_HOME
+
+#unzip the 19c image
+unzip -q LINUX.X64_193000_db_home.zip -d $ORACLE_HOME
+
+#blow away and unzip new opatch
+rm -rf $ORACLE_HOME/OPatch
+unzip -q p6880880_210000_Linux-x86-64.zip -d $ORACLE_HOME
+
+#install tiger vnc server
+yum install tigervnc-server
+
+cd $ORACLE_HOME
+./runInstaller -applyRU /u01/stage/patches/34449117/34416665/34419443 \
+-applyOneOffs /u01/stage/patches/34449117/34411846,\
+/u01/stage/patches/34449117/34416665/33575402,\
+/u01/stage/patches/34449117/34416665/34428761,\
+/u01/stage/patches/34449117/34416665/34444834,\
+/u01/stage/patches/34449117/34416665/34580338
+
+#as root
+/u01/app/oraInventory/orainstRoot.sh
+/u01/app/oracle/product/19.0.0/dbhome_1/root.sh
+
