@@ -1,0 +1,72 @@
+##############################################################################
+# Copyright (c) 1991, 2013 by Oracle Corporation
+##############################################################################
+ 
+###########################################
+# Cache and I/O
+###########################################
+db_block_size=8192
+ 
+###########################################
+# Cursors and Library Cache
+###########################################
+open_cursors=300
+ 
+###########################################
+# Database Identification
+###########################################
+db_name="orcl"
+ 
+###########################################
+# File Configuration
+###########################################
+db_create_file_dest="/u01/app/oracle/oradata"
+db_recovery_file_dest="/u01/app/oracle/fast_recovery_area"
+db_recovery_file_dest_size=17271m
+ 
+###########################################
+# Miscellaneous
+###########################################
+compatible=19.0.0
+diagnostic_dest=/u01/app/oracle
+enable_pluggable_database=true
+ 
+###########################################
+# NLS
+###########################################
+nls_language="AMERICAN"
+nls_territory="AMERICA"
+ 
+###########################################
+# Processes and Sessions
+###########################################
+processes=300
+ 
+###########################################
+# SGA Memory
+###########################################
+sga_target=2244m
+ 
+###########################################
+# Security and Auditing
+###########################################
+audit_file_dest="/u01/app/oracle/admin/orcl/adump"
+audit_trail=db
+remote_login_passwordfile=EXCLUSIVE
+ 
+###########################################
+# Shared Server
+###########################################
+dispatchers="(PROTOCOL=TCP) (SERVICE=orclXDB)"
+ 
+###########################################
+# Sort, Hash Joins, Bitmap Indexes
+###########################################
+pga_aggregate_target=749m
+ 
+###########################################
+# System Managed Undo and Rollback Segments
+###########################################
+undo_tablespace=UNDOTBS1
+ 
+ 
